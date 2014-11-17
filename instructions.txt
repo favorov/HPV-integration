@@ -1,0 +1,64 @@
+Start point: gzipped FASTQs from paired-end sequencing.
+
+1) Map to human genome 
+# e.map_pe_fastq_gz2genome.cl.pl --fasta ... --fastq-01 ... --fastq-02 ... --out your_prefix
+
+You get a BAM file (let's say, original.bam) with all reads, mapped and unmapped to human genome
+
+2) Find viruses
+
+# samtools view -bh -f 4 original.bam > only_unmapped_reads.bam
+
+# my_script_for_bam_input only_unmapped_reads.bam
+
+You get ...ex.so file with results
+
+3) Find possible integrations. Let's say, on the previous step we found presence of HPV16. 
+
+- Get HPV16 genome in FASTA format. NCBI database, choose Nucleotide database,  type hpv16 complete genome. Then choose the link with the Accession: NC_001526.2. 
+Send -> file (fasta) -> save
+Then index this genome with bwa.
+
+# bwa index -a is hpv16.fasta
+
+- Now you extract two types of reads from the original.bam.
+a) One unmapped end, whose mate is mapped to human genome
+# samtools view -bh -f 4 -F 264 original.bam > 1hg19.2um.bam
+
+b) One mapped to human genome end, whose mate is unmapped 
+# samtools view -bh -f 8 -F 260 original.bam > 1um.2hg19mp.bam
+
+- Map unmapped ends to HPV16 genome
+# e.map_se_bam2genome.cl.pl --fasta hpv16.fasta --bam 1hg19.2um.bam --out your_prefix
+
+Result: File prefix.bam that contsins ends mapped to HPV16.
+
+- Now we want to extract corresponding ends, that were mapped to human genome
+
+# samtools view prefix.bam | cut -f1 > reads.ids
+
+# extract.out -R reads.ids 1um.2hg19mp.bam > 1mphpv16.2mphg19.sam
+
+Result: 1mphpv16.2mphg19.sam that contains human ends of chimeric human-viral discordant read pairs. Look for the regions that have at least 2 or 3 reads.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
