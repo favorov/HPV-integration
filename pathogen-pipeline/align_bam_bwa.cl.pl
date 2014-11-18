@@ -22,8 +22,10 @@ my $output_bam_sort_file = $prefix.".s.bam";
 
 $sai_1_file = $prefix.".01.sai";
 
-system "bwa aln -l 32 -k 2 -t 4 $input_fasta_file -b $input_bam_file > $sai_1_file";
-system "bwa samse $input_fasta_file $sai_1_file $input_bam_file | samtools view  -Shb -F4 - > $output_bam_unsorted_file" or die;
-system "samtools sort $output_bam_unsorted_file $prefix" or die;
+system "bwa aln -l 32 -k 2 -t 4 $input_fasta_file -b $input_bam_file > $sai_1_file" if (not -f $sai_1_file or not -s $sai_1_file);
+system "bwa samse $input_fasta_file $sai_1_file $input_bam_file | samtools view  -Shb -F4 - > $output_bam_unsorted_file" if (not -f $output_bam_unsorted_file or not -s $output_bam_unsorted_file);
+print "samtools sort\n"
+system "samtools sort $output_bam_unsorted_file $prefix" if (not -f $output_bam_file or not -s $output_bam_file);
+print "samtools index\n"
 system "samtools index $output_bam_file" or die;
-system "rm -f $sai_1_file $output_bam_unsorted_file" oe die;
+system "rm -f $sai_1_file $output_bam_unsorted_file";
