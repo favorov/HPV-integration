@@ -6,26 +6,58 @@ use warnings;
 use feature 'say';
 use Getopt::Long;
 
-my ($input_bam_file, $input_fasta_file, $prefix, $sai_1_file, $output_bam_file);
+my ($input_bam_file, $input_fasta_file, , $out_prefix, $sai_1_file, $output_bam_file);
 GetOptions ("fasta=s" => \$input_fasta_file,
 			"bam=s" => \$input_bam_file,
-			"out=s" => \$prefix,
+			"out=s" => \$out_prefix,
             );
 			
-$output_bam_file = $prefix.".bam";
+$output_bam_file = $out_prefix.".bam";
 
-my $output_bam_unsorted_file_prefix = $prefix.".unsorted";
+my $output_bam_unsorted_file_prefix = $out_prefix.".unsorted";
 my $output_bam_unsorted_file = $output_bam_unsorted_file_prefix.".bam";
 
-my $output_bam_for_sort_file = $prefix.".s";
-my $output_bam_sort_file = $prefix.".s.bam";
+my $output_bam_for_sort_file = $out_prefix.".s";
+my $output_bam_sort_file = $out_prefix.".s.bam";
 
-$sai_1_file = $prefix.".01.sai";
+$sai_1_file = $out_prefix.".01.sai";
 
-system "bwa aln -l 32 -k 2 -t 4 $input_fasta_file -b $input_bam_file > $sai_1_file" if (not -f $sai_1_file or not -s $sai_1_file);
-system "bwa samse $input_fasta_file $sai_1_file $input_bam_file | samtools view  -Shb -F4 - > $output_bam_unsorted_file" if (not -f $output_bam_unsorted_file or not -s $output_bam_unsorted_file);
-print "samtools sort\n"
-system "samtools sort $output_bam_unsorted_file $prefix" if (not -f $output_bam_file or not -s $output_bam_file);
-print "samtools index\n"
-system "samtools index $output_bam_file" or die;
+#system "bwa aln -l 32 -k 2 -t 4 $input_fasta_file -b $input_bam_file > $sai_1_file" if (not -f $sai_1_file or not -s $sai_1_file);
+#system "bwa samse $input_fasta_file $sai_1_file $input_bam_file | samtools view  -Shb -F4 - > $output_bam_unsorted_file" if (not -f $output_bam_unsorted_file or not -s $output_bam_unsorted_file);
+#print "samtools sort\n"
+#system "samtools sort $output_bam_unsorted_file $out_prefix" if (not -f $output_bam_file or not -s $output_bam_file);
+#print "samtools index\n"
+#system "samtools index $output_bam_file" or die;
+
+if (not -f $sai_1_file or not -s $sai_1_file)
+{
+	my $fasta1_run="bwa aln -l 32 -k 2 -t 4 $input_fasta_file -b $input_bam_file > $sai_1_file";
+	system $fasta1_run == 0 
+		or die "system $fasta1_run died: $?";
+}
+
+
+if (not -f $output_bam_unsorted_file or not -s $output_bam_unsorted_file)
+{
+	my $fasta_combine_run="bwa samse $input_fasta_file $sai_1_file $input_bam_file | samtools view  -Shb -F4 - > $output_bam_unsorted_file";
+	system $fasta_combine_run == 0 
+		or die "system $fasta_combine_run died: $?";
+}
+
+if (not -f $output_bam_file or not -s $output_bam_file)
+{
+	print "samtools sort\n";
+	my $samtools_sort_run="samtools sort $output_bam_unsorted_file $out_prefix";
+	system $samtools_sort_run == 0
+		or die "system $samtools_sort_run died: $?";
+}
+
+if (not -f "$output_bam_file.bai" or not -s "$output_bam_file.bai")
+{
+	print "samtools index\n";
+	my $samtools_index_run="samtools index $output_bam_file";
+	system $samtools_index_run == 0 
+		or die "system $samtools_index_run died : $?";
+}
+
 system "rm -f $sai_1_file $output_bam_unsorted_file";
