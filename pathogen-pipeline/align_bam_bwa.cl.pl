@@ -17,8 +17,7 @@ $output_bam_file = $out_prefix.".bam";
 my $output_bam_unsorted_file_prefix = $out_prefix.".unsorted";
 my $output_bam_unsorted_file = $output_bam_unsorted_file_prefix.".bam";
 
-my $output_bam_for_sort_file = $out_prefix.".s";
-my $output_bam_sort_file = $out_prefix.".s.bam";
+my $output_bam_file = $out_prefix.".bam";
 
 $sai_1_file = $out_prefix.".01.sai";
 
