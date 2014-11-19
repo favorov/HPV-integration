@@ -35,8 +35,8 @@ ${pathogen}/pipeline.bwa.v8.viral.v012913_bam.pl ${name}-unmapped.bam || exit
 #unmapped aligned on viral genome, look for results in *ex.so 
 
 mv ${name}-unmapped-f.c.sam.sort.bam.graph.gt4c.ex.so ${name}-pathogen-report.txt
-rm ${name}-unmapped.*.bam.bai
-mkdir -f presence-test-junk
+rm ${name}-unmapped-f.c.sam.sort.bam.bai
+mkdir -p presence-test-junk
 mv ${name}-unmapped-s* presence-test-junk
 mv ${name}-unmapped-m* presence-test-junk
 mv ${name}-unmapped-f* presence-test-junk
