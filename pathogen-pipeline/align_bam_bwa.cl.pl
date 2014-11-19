@@ -21,7 +21,7 @@ my $output_bam_file = $out_prefix.".bam";
 
 if (-f $output_bam_file and -s $output_bam_file and -f "$output_bam_file.bai" and -s "$output_bam_file.bai")
 {
-	print "$output_bam_file $output_bam_file.bai exist, we do not run fasta alignment.\nIf it is an error, remove them manually before start.\n";
+	print "Both $output_bam_file and $output_bam_file.bai exist,\nwe do not run fasta alignment.\nIf it is an error, remove them manually before start.\n";
 	exit 0;
 }
 
