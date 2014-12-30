@@ -27,9 +27,12 @@ hg19=${pathogen}/genomes/hg19_bwa_indexed/Homo_sapiens_assembly19.fa
 
 ${pathogen}/align_pair_fastas_bwa.pl --fasta $hg19 --fastq-01 ${fasta1} --fastq-02 ${fasta2} --out ${name}-aligned || exit
 #aligned
-echo filtering out the mapped ...
-samtools view -bh -f 4 ${name}-aligned.bam > ${name}-unmapped.bam || exit
-echo done...
+if (! ( [ -f ${name}-unmapped.bam ] && [ -s ${name}-unmapped.bam ] )) 
+then
+	echo filtering out the mapped ...
+	samtools view -bh -f 4 ${name}-aligned.bam > ${name}-unmapped.bam || exit
+	echo done...
+fi
 #mapped filtered out
 ${pathogen}/pipeline.bwa.v8.viral.v012913_bam.pl ${name}-unmapped.bam || exit
 #unmapped aligned on viral genome, look for results in *ex.so 
