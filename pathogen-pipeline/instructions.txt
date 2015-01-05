@@ -24,9 +24,20 @@ Then index this genome with bwa.
 - Now you extract two types of reads from the original.bam.
 a) One unmapped end, whose mate is mapped to human genome
 # samtools view -bh -f 4 -F 264 original.bam > 1hg19.2um.bam
+#-f include all
+#-F excluse (any?)
+# 264=octal 108
+#0x4 segment unmapped
+#0x8 next segment in the template unmapped
+#0x100 secondary alignment
+
 
 b) One mapped to human genome end, whose mate is unmapped 
 # samtools view -bh -f 8 -F 260 original.bam > 1um.2hg19mp.bam
+# 260=octal 104
+#0x4 segment unmapped
+#0x8 next segment in the template unmapped
+#0x100 secondary alignment
 
 - Map unmapped ends to HPV16 genome
 # e.map_se_bam2genome.cl.pl --fasta hpv16.fasta --bam 1hg19.2um.bam --out your_prefix

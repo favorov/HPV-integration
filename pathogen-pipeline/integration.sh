@@ -1,46 +1,61 @@
 #!/bin/bash
-name=$1
+#here, we suppose that test_for_exist script is already competed,
+#and we have the bam file with the name 
+#here, there are two parameters
+# $1 is the name of the fasta without _1 and _2. It is kind of id of the experinemt and the previouos script generated ${name}_aligned.bam
+# in the instructions from Misha, the ${name}_aligned.bam is called original.bam
+# $2 is full name (with path and extension) of the reference viral FASTA file, we suppose it is indexed by bwa in its folder (bwa index -a is myvirus.fasta)
+
 
 if [ ! -n "$1" ]
 then
- echo Parameter 1 must be name prefix to be expanede to fasta names by add _1.fq.qz and _2.fq.gz
+ echo Parameter 1 must be name prefix to be expanede to original bam file by adding '_aligned.bam'  
  exit
 fi 
 
-fasta1=${name}_1.fq.gz
-fasta2=${name}_2.fq.gz
+name=$1
 
-if [ ! -f ${fasta1} ]
+original_bam=${name}_aligned.bam
+
+if [ ! -f ${original_bam} ]
 then
- echo file ${fasta1} does not ezist  
+ echo file ${original_bam} does not ezist  
  exit
 fi 
 
-if [ ! -f ${fasta2} ]
+if [ ! -n "$2" ]
 then
- echo file ${fasta2} does not ezist  
+ echo Parameter 2 must be name the full name (with path and extension) reference viral genome  
  exit
-fi
+fi 
+
+virus=$1
+
+if [ ! -f ${virus} ]
+then
+ echo file ${virus} does not ezist  
+ exit
+fi 
 
 export pathogen=~/pathogen_pipeline_2014
-hg19=${pathogen}/genomes/hg19_bwa_indexed/Homo_sapiens_assembly19.fa
 
-${pathogen}/align_pair_fastas_bwa.pl --fasta $hg19 --fastq-01 ${fasta1} --fastq-02 ${fasta2} --out ${name}-aligned || exit
-#aligned
-if (! ( [ -f ${name}-unmapped.bam ] && [ -s ${name}-unmapped.bam ] )) 
-then
-	echo filtering out the mapped ...
-	samtools view -bh -f 4 ${name}-aligned.bam > ${name}-unmapped.bam || exit
-	echo done...
-fi
-#mapped filtered out
-${pathogen}/pipeline.bwa.v8.viral.v012913_bam.pl ${name}-unmapped.bam || exit
-#unmapped aligned on viral genome, look for results in *ex.so 
+unmapped_mate_of_mapped=${name}_umom.bam
 
-mv ${name}-unmapped-f.c.sam.sort.bam.graph.gt4c.ex.so ${name}-pathogen-report.txt
-rm ${name}-unmapped-f.c.sam.sort.bam.bai
-mkdir -p presence-test-junk
-mv ${name}-unmapped-s* presence-test-junk
-mv ${name}-unmapped-m* presence-test-junk
-mv ${name}-unmapped-f* presence-test-junk
-mv ${name}-unmapped.xa* presence-test-junk
+mapped_mate_of_unmapped=${name}_moum.bam
+
+samtools view -bh -f 4 -F 264 $original_bam > $unmapped_mate_of_mapped 
+#-f include all
+#-F excluse (any?)
+# 264=octal 108
+#0x4 segment unmapped
+#0x8 next segment in the template unmapped
+#0x100 secondary alignment
+
+samtools view -bh -f 8 -F 260 $original_bam > $mapped_mate_of_unmapped 
+#-f include all
+#-F excluse (any?)
+# 264=octal 108
+#0x4 segment unmapped
+#0x8 next segment in the template unmapped
+#0x100 secondary alignment
+
