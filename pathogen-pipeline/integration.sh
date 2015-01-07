@@ -89,11 +89,11 @@ then
 	echo done...
 fi
 
-read_ids=${name}.${virus_name}.reads.ids
+read_ids=${name}.${virus_name}.read.ids
 if (! ( [ -f $read_ids ] && [ -s $read_ids ] )) 
 then
 	echo extract ids of mapped 
-	samtools view $map_unmapped_to_virus | cut -f1 > $reads_ids
+	samtools view $map_unmapped_to_virus | cut -f1 > $read_ids
 	echo done...
 fi
 
