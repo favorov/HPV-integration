@@ -45,7 +45,7 @@ mapped_mate_of_unmapped=${name}_moum.bam
 
 if (! ( [ -f $unmapped_mate_of_mapped ] && [ -s $unmapped_mate_of_mapped ] )) 
 then
-	echo unmapped_mate_of_mapped
+	echo filter out unmapped mate of mapped
 	samtools view -bh -f 4 -F 264 $original_bam > $unmapped_mate_of_mapped 
 	#-f include all
 	#-F excluse (any?)
@@ -59,7 +59,7 @@ fi
 
 if (! ( [ -f $mapped_mate_of_unmapped ] && [ -s $mapped_mate_of_ummapped ] )) 
 then
-	echo mapped_mate_of_ummapped
+	echo filter out mapped mate of ummapped
 	samtools view -bh -f 8 -F 260 $original_bam > $mapped_mate_of_unmapped 
 	#-f include all
 	#-F excluse (any?)
@@ -71,5 +71,13 @@ then
 fi
 
 #Map unmapped ends to HPV16 genome
-${pathogen}/e.map_se_bam2genome.cl.pl --fasta ${virus} --bam ${unmapped_mate_of_mapped} --out ${name}
+#the result is ${name}.s.bam
+if (! ( [ -f ${name}.s.bam ] && [ -s ${name}.s.bam ] )) 
+then
+	echo map ummapped to virus
+	${pathogen}/e.map_se_bam2genome.cl.pl --fasta ${virus} --bam ${unmapped_mate_of_mapped} --out ${name}
+	echo done...
+fi
+
+
 
