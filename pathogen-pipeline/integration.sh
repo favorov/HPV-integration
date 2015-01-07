@@ -15,7 +15,7 @@ fi
 
 name=$1
 
-original_bam=${name}_aligned.bam
+original_bam=${name}-aligned.bam
 
 if [ ! -f ${original_bam} ]
 then
@@ -25,11 +25,11 @@ fi
 
 if [ ! -n "$2" ]
 then
- echo Parameter 2 must be name the full name (with path and extension) reference viral genome  
+ echo Parameter 2 must be name the full name \(with path and extension\) reference viral genome  
  exit
 fi 
 
-virus=$1
+virus=$2
 
 if [ ! -f ${virus} ]
 then
@@ -43,19 +43,33 @@ unmapped_mate_of_mapped=${name}_umom.bam
 
 mapped_mate_of_unmapped=${name}_moum.bam
 
-samtools view -bh -f 4 -F 264 $original_bam > $unmapped_mate_of_mapped 
-#-f include all
-#-F excluse (any?)
-# 264=octal 108
-#0x4 segment unmapped
-#0x8 next segment in the template unmapped
-#0x100 secondary alignment
+if (! ( [ -f $unmapped_mate_of_mapped ] && [ -s $unmapped_mate_of_mapped ] )) 
+then
+	echo unmapped_mate_of_mapped
+	samtools view -bh -f 4 -F 264 $original_bam > $unmapped_mate_of_mapped 
+	#-f include all
+	#-F excluse (any?)
+	# 264=octal 108
+	#0x4 segment unmapped
+	#0x8 next segment in the template unmapped
+	#0x100 secondary alignment
+	echo done...
+fi
 
-samtools view -bh -f 8 -F 260 $original_bam > $mapped_mate_of_unmapped 
-#-f include all
-#-F excluse (any?)
-# 264=octal 108
-#0x4 segment unmapped
-#0x8 next segment in the template unmapped
-#0x100 secondary alignment
+
+if (! ( [ -f $mapped_mate_of_unmapped ] && [ -s $mapped_mate_of_ummapped ] )) 
+then
+	echo mapped_mate_of_ummapped
+	samtools view -bh -f 8 -F 260 $original_bam > $mapped_mate_of_unmapped 
+	#-f include all
+	#-F excluse (any?)
+	# 264=octal 108
+	#0x4 segment unmapped
+	#0x8 next segment in the template unmapped
+	#0x100 secondary alignment
+	echo done...
+fi
+
+#Map unmapped ends to HPV16 genome
+${pathogen}/e.map_se_bam2genome.cl.pl --fasta ${virus} --bam ${unmapped_mate_of_mapped} --out ${name}
 
