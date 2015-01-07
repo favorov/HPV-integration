@@ -81,10 +81,11 @@ fi
 #Map unmapped ends to HPV16 genome
 #the result is ${name}.s.bam
 map_unmapped_to_virus=${name}.${virus_name}.s.bam
+
 if (! ( [ -f $map_unmapped_to_virus ] && [ -s $map_unmapped_to_virus ] )) 
 then
 	echo map ummapped to virus
-	${pathogen}/e.map_se_bam2genome.cl.pl --fasta ${virus} --bam ${unmapped_mate_of_mapped} --out ${name}
+	${pathogen}/e.map_se_bam2genome.cl.pl --fasta ${virus} --bam ${unmapped_mate_of_mapped} --out ${name}.${virus_name}
 	echo done...
 fi
 
@@ -104,7 +105,7 @@ then
 	echo extract mapped by ids
 	${pathogen}/extract -R $read_ids $mapped_mate_of_unmapped >> $integration
 	echo done...
-	mkdir integration-test-junk
+	mkdir -p integration-test-junk
 	mv $map_unmapped_to_virus $map_unmapped_to_virus.bai $read_ids integration-test-junk
 fi
 
