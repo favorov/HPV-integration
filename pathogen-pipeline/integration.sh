@@ -5,7 +5,7 @@
 # $1 is the name of the fasta without _1 and _2. It is kind of id of the experinemt and the previouos script generated ${name}_aligned.bam
 # in the instructions from Misha, the ${name}_aligned.bam is called original.bam
 # $2 is full name (with path and extension) of the reference viral FASTA file, we suppose it is indexed by bwa in its folder (bwa index -a is myvirus.fasta)
-
+# $3 is a name to refer the viral genome in the file names, like  'DGay18-047-1.HPV16.integration.sam' - the first part of the name is $1, the second is $3
 
 if [ ! -n "$1" ]
 then
@@ -36,6 +36,14 @@ then
  echo file ${virus} does not ezist  
  exit
 fi 
+
+if [ ! -n "$3" ]
+then
+ echo Parameter 3 must be name the tag name \(nickname\) of the reference viral genome to include it in result file names  
+ exit
+fi 
+
+virus_name=$3
 
 export pathogen=~/pathogen_pipeline_2014
 
@@ -72,7 +80,7 @@ fi
 
 #Map unmapped ends to HPV16 genome
 #the result is ${name}.s.bam
-map_unmapped_to_virus=${name}.s.bam
+map_unmapped_to_virus=${name}.${virus_name}.s.bam
 if (! ( [ -f $map_unmapped_to_virus ] && [ -s $map_unmapped_to_virus ] )) 
 then
 	echo map ummapped to virus
@@ -80,7 +88,7 @@ then
 	echo done...
 fi
 
-read_ids=${name}.reads.ids
+read_ids=${name}.${virus_name}.reads.ids
 if (! ( [ -f $read_ids ] && [ -s $read_ids ] )) 
 then
 	echo extract ids of mapped 
@@ -88,7 +96,7 @@ then
 	echo done...
 fi
 
-integration=${name}.integration.sam
+integration=${name}.${virus_name}.integration.sam
 if (! ( [ -f $integration ] && [ -s $integration ] )) 
 then
 	echo extract header 
@@ -96,6 +104,8 @@ then
 	echo extract mapped by ids
 	${pathogen}/extract -R $read_ids $mapped_mate_of_unmapped >> $integration
 	echo done...
+	mkdir integration-test-junk
+	mv $map_unmapped_to_virus $map_unmapped_to_virus.bai $read_ids integration-test-junk
 fi
 
 
