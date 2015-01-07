@@ -79,7 +79,8 @@ then
 fi
 
 #Map unmapped ends to HPV16 genome
-#the result is ${name}.s.bam
+#the result is ${name}.${virus_name}.s.bam
+
 map_unmapped_to_virus=${name}.${virus_name}.s.bam
 
 if (! ( [ -f $map_unmapped_to_virus ] && [ -s $map_unmapped_to_virus ] )) 
