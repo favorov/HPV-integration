@@ -72,10 +72,29 @@ fi
 
 #Map unmapped ends to HPV16 genome
 #the result is ${name}.s.bam
-if (! ( [ -f ${name}.s.bam ] && [ -s ${name}.s.bam ] )) 
+map_unmapped_to_virus=${name}.s.bam
+if (! ( [ -f $map_unmapped_to_virus ] && [ -s $map_unmapped_to_virus ] )) 
 then
 	echo map ummapped to virus
 	${pathogen}/e.map_se_bam2genome.cl.pl --fasta ${virus} --bam ${unmapped_mate_of_mapped} --out ${name}
+	echo done...
+fi
+
+read_ids=${name}.reads.ids
+if (! ( [ -f $read_ids ] && [ -s $read_ids ] )) 
+then
+	echo extract ids of mapped 
+	samtools view $map_unmapped_to_virus | cut -f1 > $reads_ids
+	echo done...
+fi
+
+integration=${name}.integration.sam
+if (! ( [ -f $integration ] && [ -s $integration ] )) 
+then
+	echo extract header 
+	samtools view -H $mapped_mate_of_unmapped > $integration
+	echo extract mapped by ids
+	${pathogen}/extract -R $read_ids $mapped_mate_of_unmapped >> $integration
 	echo done...
 fi
 
