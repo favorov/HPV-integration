@@ -21,15 +21,15 @@ open my ($output_drp), '>>', $output_drp_file or die "Cannot open file for writi
 @raw_data_with_header = <$input_sam>;
 close $input_sam;
 my $size_raw_data_with_header = @raw_data_with_header;
-for ($i=0; $i<$size_raw_data_with_header; $i++) {
+for (my $i=0; $i<$size_raw_data_with_header; $i++) {
 	next if $raw_data_with_header[$i]=~/^@/;
 	push @raw_data,$raw_data_with_header[$i];
 }
-my $i;
 $n = 0;
 my $real_clusters = 0;
 my $count = 0;
-for ($i=0; $i<$size_raw_data; $i++) {	
+my $size_raw_data = @raw_data;
+for (my $i=0; $i<$size_raw_data; $i++) {	
 	if ($i>0) {
 		my $last_full_line = $raw_data[$i-1];
 		chomp($last_full_line);
@@ -51,11 +51,11 @@ for ($i=0; $i<$size_raw_data; $i++) {
 				$count++;
 				my $size_drp_array = @drp_array;
 				if ($size_drp_array >= $threshold) {
-                    $real_clusters++;
-					my @first_line_drp_array = split /\t/, $drp_array[0];
-					my @last_line_drp_array = split /\t/, $drp_array[-1];
-					say $output_drp "### CLUSTER number $count; # of reads: $size_drp_array ###\n### CLUSTER: $first_line_drp_array[2]:$first_line_drp_array[3]-$last_line_drp_array[3] ###END";
-					foreach(@drp_array) {
+            $real_clusters++;
+						my @first_line_drp_array = split /\t/, $drp_array[0];
+						my @last_line_drp_array = split /\t/, $drp_array[-1];
+						say $output_drp "### CLUSTER number $count; # of reads: $size_drp_array ###\n### CLUSTER: $first_line_drp_array[2]:$first_line_drp_array[3]-$last_line_drp_array[3] ###END";
+						foreach(@drp_array) {
 						say $output_drp "$_";
 					}
 					say $output_drp "\n";
